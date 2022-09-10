@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import finnHub from '../lib/api/finnhub';
 import { BsFillCaretDownFill, BsFillCaretUpFill } from 'react-icons/bs';
+import { WatchListContext } from '../context/watchListContext';
+import { useNavigate } from 'react-router-dom';
 
 type StockSymbol = string;
 type StockData = {
@@ -21,11 +23,8 @@ type Stocks = Map<StockSymbol, StockData> | null;
 
 export const StockList = () => {
   const [stocks, setStocks] = useState<Stocks>(null);
-  const [watchList, setWatchList] = useState<StockWatchList>([
-    'AAPL',
-    'MSFT',
-    'GOOG',
-  ]);
+  const { watchList } = useContext(WatchListContext);
+  const navigate = useNavigate();
 
   const changeColor = (value: number | null) => {
     if (value === null) {
@@ -75,7 +74,11 @@ export const StockList = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [watchList]);
+
+  const handleStockSelect = (symbol: string) => {
+    navigate(`/detail/${symbol}`);
+  };
 
   return (
     <div>
@@ -95,7 +98,12 @@ export const StockList = () => {
         <tbody>
           {stocks &&
             Array.from(stocks).map(([symbol, data]) => (
-              <tr key={symbol} className="table-row">
+              <tr
+                onClick={() => handleStockSelect(symbol)}
+                key={symbol}
+                className="table-row"
+                style={{ cursor: 'pointer' }}
+              >
                 <th scope="row">{symbol}</th>
                 <td>{data.c.toFixed(2)}</td>
                 <td className={changeColor(data.d)}>
