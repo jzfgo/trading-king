@@ -23,7 +23,7 @@ type Stocks = Map<StockSymbol, StockData> | null;
 
 export const StockList = () => {
   const [stocks, setStocks] = useState<Stocks>(null);
-  const { watchList } = useContext(WatchListContext);
+  const { watchList, removeStock } = useContext(WatchListContext);
   const navigate = useNavigate();
 
   const changeColor = (value: number | null) => {
@@ -115,7 +115,18 @@ export const StockList = () => {
                 <td>{data.h.toFixed(2)}</td>
                 <td>{data.l.toFixed(2)}</td>
                 <td>{data.o.toFixed(2)}</td>
-                <td>{data.pc.toFixed(2)}</td>
+                <td>
+                  {data.pc.toFixed(2)}
+                  <button
+                    className="btn btn-danger btn-sm ml-3 d-inline-block delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeStock(symbol);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
               </tr>
             ))}
         </tbody>

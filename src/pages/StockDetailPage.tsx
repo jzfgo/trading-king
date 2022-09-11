@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { StockChart } from '../components/StockChart';
+import { StockInfo } from '../components/StockInfo';
 import finnHub from '../lib/api/finnhub';
 
 type StockCandleResponse = {
@@ -35,8 +36,16 @@ export const StockDetailPage = () => {
   const { symbol } = useParams();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
-      const to = Math.floor(new Date().getTime() / 1000);
+      let to = Math.floor(new Date().getTime() / 1000);
+      // Exclude weekends
+      if (new Date().getDay() === 0) {
+        to -= 86400 * 2;
+      } else if (new Date().getDay() === 6) {
+        to -= 86400;
+      }
       const aDayAgo = to - 60 * 60 * 24;
       const aWeekAgo = to - 60 * 60 * 24 * 7;
       const aYearAgo = to - 60 * 60 * 24 * 365;
@@ -62,6 +71,10 @@ export const StockDetailPage = () => {
         const year = formatData(responses[2].data);
 
         setChartData({ day, week, year });
+
+        return () => {
+          isMounted = false;
+        };
       } catch (error) {
         console.error(error);
       }
@@ -75,6 +88,11 @@ export const StockDetailPage = () => {
       {chartData && symbol && (
         <div>
           <StockChart symbol={symbol} chartData={chartData} />
+        </div>
+      )}
+      {symbol && (
+        <div>
+          <StockInfo symbol={symbol} />
         </div>
       )}
     </div>
