@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useState } from 'react';
+import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 
 type StockSymbol = string;
 type StockData = {
@@ -27,7 +27,14 @@ export const WatchListContext = createContext<WatchListContextInterface>({
 });
 
 export const WatchListContextProvider = ({ children }: PropsWithChildren) => {
-  const [watchList, setWatchList] = useState<StockWatchList>(['AAPL']);
+  const currentWatchList = JSON.parse(
+    localStorage.getItem('watchList') + ''
+  ) || ['AAPL'];
+  const [watchList, setWatchList] = useState<StockWatchList>(currentWatchList);
+
+  useEffect(() => {
+    localStorage.setItem('watchList', JSON.stringify(watchList));
+  }, [watchList]);
 
   const addStock = (symbol: StockSymbol) => {
     if (!watchList.includes(symbol)) {
